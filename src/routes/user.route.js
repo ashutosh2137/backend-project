@@ -10,7 +10,7 @@ router.route("/register").post(upload.fields([
     maxCount:1
 },
 {
-    name:"coveriImage",
+    name:"coverImage",
     maxCount:1
 }
 

@@ -1,6 +1,6 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
-import {user} from "../models/user.model.js"
+import { user } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/fileUpload.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
@@ -8,7 +8,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 const registeruser= asyncHandler(async(req,res)=>{
     
     const {fullName,email,username,password}=req.body
-    console.log("email",email);
+
 
     if(
         [fullName,email,username,password].some((field)=>
@@ -18,7 +18,7 @@ const registeruser= asyncHandler(async(req,res)=>{
     }
 
     //checking th euser is existed or not with username and email
-    const existedUser=user.findOne({
+    const existedUser=await user.findOne({
         $or:[{username},{email}]
     })
     if(existedUser){
@@ -27,7 +27,7 @@ const registeruser= asyncHandler(async(req,res)=>{
 
 
     //multer
-    const avaterLocalPath = req.files?.avater[0]?.path
+    const avaterLocalPath = req.files?.avatar[0]?.path
     const coverImageLocatPath = req.files?.coverImage[0]?.path
     if(!avaterLocalPath){
         throw new ApiError(400,"Avtar file is required")
@@ -42,7 +42,7 @@ const registeruser= asyncHandler(async(req,res)=>{
     }
 
     //database entry
-   const user=await user.create({
+   const userData = await user.create({
         fullName,
         avatar: avatar.url,
         coverImage: coverImage?.url || "",
@@ -50,7 +50,7 @@ const registeruser= asyncHandler(async(req,res)=>{
         password,
         username: username.toLowerCase()
     })
-    const createdUser = await UserActivation.findById(user._id).select(
+    const createdUser = await user.findById(userData._id).select(
         "-password -refreshToken"
     )
     if(!createdUser){
